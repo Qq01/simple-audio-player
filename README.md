@@ -3,6 +3,11 @@ Simple Audio Player as name suggests it's a web application that allows to play 
 
 >This application uses newest features of JavaScript (like `async` keyword, `script module` and `HTML Custom Elements`) so it can not work correctly on older browsers
 
+Demo: https://devbit.pl/project_files/simple-audio-player/
+* Add Music that you wan't to listen
+* Select track from the playlist
+* Press the play button
+
 # Features
 ## Implemented
 * Add Music from your pc and play it in browser
