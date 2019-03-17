@@ -7,7 +7,7 @@ const template = `
 </style>
 <label class="w3-btn w3-block w3-flat-wet-asphalt" >
     Add music
-    <input id="input-file" type="file" accept="audio/*" style="display:none" >
+    <input id="input-file" type="file" accept="audio/*" style="display:none" multiple >
 </label>
 <ul id="filelist" class="w3-ul" ></ul>
 `.trim();
@@ -28,6 +28,9 @@ export class QqPlaylist extends HTMLElement {
                 let audioFile = new QqAudioFile();
                 audioFile.setFile(this._dom.inputFile.files[i]);
                 audioFile.addEventListener('click', e => {
+                    this._dom.filelist.querySelectorAll('qq-audio-file').forEach(af => {
+                        af.setIsActive(false);
+                    });
                     this.selectedFile = audioFile;
                     audioFile.setIsActive(true);
                     this.dispatchEvent(new Event('qq-fileselect'));

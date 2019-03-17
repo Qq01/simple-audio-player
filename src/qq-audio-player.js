@@ -94,20 +94,6 @@ export class QqAudioPlayer extends HTMLElement {
             requestAnimationFrame(rafUpdate);
         }
         rafUpdate();
-
-        // setInterval(() => {
-        //     if (this._isPlaying)
-        //     if (this._audioBuffer) {
-        //         this._dom.audioDuration.innerText = formatTime(this._audioBuffer.duration);
-        //         this._playbackTime = (Date.now() - this._startTime) / 1000;
-        //         this._dom.audioCurrentTime.innerText = formatTime(this._playbackTime);
-        //         const rate = Math.min(this._playbackTime / this._audioBuffer.duration, 1);
-        //         if (rate >= 1) {
-        //             this._isPlaying = false;
-        //         }
-        //         this._dom.progress.setValue(rate);
-        //     }
-        // }, 500);
     }
     setVolume = (volume) => {
         this._dom.volume.setValue(volume);
@@ -125,12 +111,22 @@ export class QqAudioPlayer extends HTMLElement {
         return this._isPlaying;
     }
     setAudioFile = (audioFile) => {
+        let playnext = false;
         if (this.getIsPlaying()) {
-            this.pause();
+            playnext = true;
+            this.stop();
         }
         this._audioFile = audioFile;
-        this._audioFile.getArrayBuffer().then(this._setAudioFileArrayBuffer).then(() => {
-            if (this.getIsPlaying()) {
+        // this._audioFile.getArrayBuffer().then(this._setAudioFileArrayBuffer, console.error).then(() => {
+        //     if (playnext) {
+        //         this.play();
+        //     }
+        // }, console.error);
+        this._attachAudioContext();
+        this._audioFile.getAudioBuffer(this._audioContext).then((audioBuffer) => {
+            this._audioBuffer = audioBuffer;
+            this._dom.audioDuration.innerText = formatTime(this._audioBuffer.duration);
+            if (playnext) {
                 this.play();
             }
         });

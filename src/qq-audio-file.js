@@ -5,7 +5,7 @@ const template = `
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 </style>
 <div>
-    <div style="width:30px;display:inline-block;" ><i class="material-icons" id="play-arrow" style="display:none;" >play_arrow</i></div>
+    <div style="width:30px;display:inline-block;" ><i class="material-icons" id="play-arrow" style="display:none;" >pause</i></div>
     <div style="width:calc(100% - 40px);display:inline-block;" id="filename" class="w3-btn buffering" ></div>
 </div>
 `.trim();
@@ -35,10 +35,10 @@ export class QqAudioFile extends HTMLElement {
         this.shadowRoot.innerHTML = template;
 
         this._name = '';
-        this._arrayBuffer = null;
         this._file = null;
         this._isActive = false;
         this._playPauseState = 'pause';
+        this._audioBuffer = null;
 
         this._dom = {};
         this._dom.filename = this.shadowRoot.getElementById('filename');
@@ -69,13 +69,18 @@ export class QqAudioFile extends HTMLElement {
         this._file = file;
     }
     getArrayBuffer = async () => {
-        if (this._arrayBuffer == null && this._file != null) {
-            this._arrayBuffer = await readFileAsArrayBuffer(this._file, data => {
+            let arrayBuffer = await readFileAsArrayBuffer(this._file, data => {
                 console.log('loading', data);
             });
-            console.log(this._arrayBuffer);
+            console.log(arrayBuffer);
+        return arrayBuffer;
+    }
+    getAudioBuffer = async (audioContext) => {
+        if (this._audioBuffer == null) {
+            let arrayBuffer = await this.getArrayBuffer();
+            this._audioBuffer = audioContext.decodeAudioData(arrayBuffer);
         }
-        return this._arrayBuffer;
+        return this._audioBuffer;
     }
     /**
      * @param {string} name
