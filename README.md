@@ -11,8 +11,8 @@ Demo: https://devbit.pl/project_files/simple-audio-player/
 # Features
 ## Implemented
 * Add Music from your pc and play it in browser
-## Planned
 * Playlist with looping and randomising capabilities
+## Planned
 * Basic equalizer
 * Visualizer
 
@@ -33,5 +33,6 @@ If you wan't to self host libraries then replace `@import` urls in `src/*` files
 * w3.css
 
 > Tested only on Google Chrome
+> Microsoft Edge and Firefox not supported
 
 Powered by ![Vanilla JS](http://vanilla-js.com/assets/button.png)

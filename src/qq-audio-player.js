@@ -17,7 +17,7 @@ const template = `
 <div class="w3-row w3-padding w3-margin w3-flat-wet-asphalt" >
     <div class="w3-col s3" >&nbsp;</div>
     <div class="w3-col s6 w3-center" >
-        <button id="btn-shuffle" class="w3-btn" ><i class="material-icons" >shuffle</i></button>
+        <button id="btn-shuffle" class="w3-btn" ><i class="material-icons w3-text-grey" >shuffle</i></button>
         <button id="btn-track-previous" class="w3-btn" ><i class="material-icons" >skip_previous</i></button>
         <button id="btn-track-play-pause" class="w3-btn" ><i class="material-icons" >play_arrow</i></button>
         <button id="btn-track-next" class="w3-btn" ><i class="material-icons" >skip_next</i></button>
@@ -47,6 +47,8 @@ export class QqAudioPlayer extends HTMLElement {
         this._currentSource = null;
         this._isPlaying = false;
         this._audioFile = null;
+        this._isLooping = true;
+        this._isRandom = false;
 
         this._dom = {};
         this._dom.btnTrackPlayPause = this.shadowRoot.getElementById('btn-track-play-pause');
@@ -54,6 +56,35 @@ export class QqAudioPlayer extends HTMLElement {
         this._dom.audioCurrentTime = this.shadowRoot.getElementById('audio-current-time');
         this._dom.audioDuration = this.shadowRoot.getElementById('audio-duration');
         this._dom.progress = this.shadowRoot.getElementById('progress');
+        this._dom.shuffle = this.shadowRoot.getElementById('btn-shuffle');
+        this._dom.loop = this.shadowRoot.getElementById('btn-loop');
+        this._dom.trackPrevious = this.shadowRoot.getElementById('btn-track-previous');
+        this._dom.trackNext = this.shadowRoot.getElementById('btn-track-next');
+        
+        this._dom.trackPrevious.addEventListener('click', e => {
+            this.dispatchEvent(new Event('qq-request-previous-audio'));
+        });
+
+        this._dom.trackNext.addEventListener('click', e => {
+            this.dispatchEvent(new Event('qq-request-next-audio'));
+        });
+
+        this._dom.shuffle.addEventListener('click', e => {
+            this._isRandom = !this._isRandom;
+            if (this._isRandom) {
+                this._dom.shuffle.querySelector('i').classList.remove('w3-text-grey');
+            } else {
+                this._dom.shuffle.querySelector('i').classList.add('w3-text-grey');
+            }
+        });
+        this._dom.loop.addEventListener('click', e => {
+            this._isLooping = !this._isLooping;
+            if (this._isLooping) {
+                this._dom.loop.querySelector('i').classList.remove('w3-text-grey');
+            } else {
+                this._dom.loop.querySelector('i').classList.add('w3-text-grey');
+            }
+        });
 
         this._dom.progress.addEventListener('change', e => {
             this.pause();
@@ -75,6 +106,9 @@ export class QqAudioPlayer extends HTMLElement {
         this._playbackTime = 0;
         let rafPreviousTime = 0;
         let rafDeltaTime = 0;
+
+        //Update loop for progress bar etc.
+        //We don't have info about when the sound ends playing but we have information about the length of audio and elapsed time in loop.
         const rafUpdate = (time = 0) => {
             rafDeltaTime = time - rafPreviousTime;
             rafPreviousTime = time;
@@ -87,6 +121,13 @@ export class QqAudioPlayer extends HTMLElement {
                     if (rate >= 1) {
                         this._setIsPlaying(false);
                         this._playbackTime = 0;
+                        if (this._isLooping) {
+                            if (this._isRandom) {
+                                this.dispatchEvent(new Event('qq-request-random-audio'));
+                            } else {
+                                this.dispatchEvent(new Event('qq-request-next-audio'));
+                            }
+                        }
                     }
                     this._dom.progress.setValue(rate);
                 }
@@ -98,7 +139,7 @@ export class QqAudioPlayer extends HTMLElement {
     setVolume = (volume) => {
         this._dom.volume.setValue(volume);
         this._gainNode.gain.value = volume;
-    }
+    };
     getVolume = () => {
         return this._gainNode.gain.value;
     }
@@ -111,9 +152,9 @@ export class QqAudioPlayer extends HTMLElement {
         return this._isPlaying;
     }
     setAudioFile = (audioFile) => {
-        let playnext = false;
+        // let playnext = false;
         if (this.getIsPlaying()) {
-            playnext = true;
+            // playnext = true;
             this.stop();
         }
         this._audioFile = audioFile;
@@ -126,9 +167,9 @@ export class QqAudioPlayer extends HTMLElement {
         this._audioFile.getAudioBuffer(this._audioContext).then((audioBuffer) => {
             this._audioBuffer = audioBuffer;
             this._dom.audioDuration.innerText = formatTime(this._audioBuffer.duration);
-            if (playnext) {
+            // if (playnext) {
                 this.play();
-            }
+            // }
         });
     }
     _setAudioFileArrayBuffer = async (audioFileArrayBuffer) => {
@@ -155,6 +196,14 @@ export class QqAudioPlayer extends HTMLElement {
         }
     }
     play = (time = 0) => {
+        if (this._audioBuffer == null) {
+            if (this._isRandom) {
+                this.dispatchEvent(new Event('qq-request-random-audio'));
+            } else {
+                this.dispatchEvent(new Event('qq-request-next-audio'));
+            }
+            return;
+        }
         this._dom.btnTrackPlayPause.querySelector('i').innerText = 'pause';
         console.log('plaing sound');
         this._attachAudioContext();

@@ -30,6 +30,15 @@ export class QqSimpleAudioPlayer extends HTMLElement {
             //     this._dom.audioPlayer.setAudioFile(arrayBuffer);
             // });
         });
+        this._dom.audioPlayer.addEventListener('qq-request-next-audio', e => {
+            this._dom.playlist.selectNextAudioFile();
+        });
+        this._dom.audioPlayer.addEventListener('qq-request-previous-audio', e => {
+            this._dom.playlist.selectPreviousAudioFile();
+        });
+        this._dom.audioPlayer.addEventListener('qq-request-random-audio', e => {
+            this._dom.playlist.selectRandomAudioFile();
+        });
     }
 }
 
