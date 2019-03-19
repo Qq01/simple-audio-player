@@ -6,7 +6,8 @@ const template = `
 </style>
 <div>
     <div style="width:30px;display:inline-block;" ><i class="material-icons" id="play-arrow" style="display:none;" >pause</i></div>
-    <div style="width:calc(100% - 40px);display:inline-block;" id="filename" class="w3-btn buffering" ></div>
+    <div style="width:calc(100% - 100px);display:inline-block;" id="filename" class="w3-btn buffering" ></div>
+    <div id="btn-remove" class="w3-btn" ><i class="material-icons w3-text-light-grey" >clear</i></div>    
 </div>
 `.trim();
 /**
@@ -43,6 +44,11 @@ export class QqAudioFile extends HTMLElement {
         this._dom = {};
         this._dom.filename = this.shadowRoot.getElementById('filename');
         this._dom.playArrow = this.shadowRoot.getElementById('play-arrow');
+        this._dom.remove = this.shadowRoot.getElementById('btn-remove');
+
+        this._dom.remove.addEventListener('click', e => {
+            this.dispatchEvent(new Event('qq-request-remove'));
+        })
     }
     setIsActive = (isActive) => { 
         this._isActive = isActive;

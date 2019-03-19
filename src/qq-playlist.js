@@ -41,6 +41,17 @@ export class QqPlaylist extends HTMLElement {
                     this._selectAudioFile(audioFile);
                     this.dispatchEvent(new Event('qq-fileselect'));
                 });
+                audioFile.addEventListener('qq-request-remove', e => {
+                    let i = this._audioFiles.findIndex(elem => {return elem == audioFile});
+                    if (i > -1) {
+                        this._audioFiles.splice(i, 1);
+                        if (audioFile.getIsActive()) {
+                            this.selectNextAudioFile();
+                        }
+                        audioFile.parentElement.parentElement.removeChild(audioFile.parentElement);
+                        this.dispatchEvent(new Event('qq-fileremove'));
+                    }
+                });
                 let li = document.createElement('li');
                 li.appendChild(audioFile);
                 this._dom.filelist.appendChild(li);

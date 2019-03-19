@@ -15,15 +15,15 @@ const template = `
     <span id="audio-duration" >n/a</span>
 </div>
 <div class="w3-row w3-padding w3-margin w3-flat-wet-asphalt" >
-    <div class="w3-col s3" >&nbsp;</div>
-    <div class="w3-col s6 w3-center" >
+    <div class="w3-col s12 m12 l3" >&nbsp;</div>
+    <div class="w3-col s12 m7 l6 w3-center" >
         <button id="btn-shuffle" class="w3-btn" ><i class="material-icons w3-text-grey" >shuffle</i></button>
         <button id="btn-track-previous" class="w3-btn" ><i class="material-icons" >skip_previous</i></button>
         <button id="btn-track-play-pause" class="w3-btn" ><i class="material-icons" >play_arrow</i></button>
         <button id="btn-track-next" class="w3-btn" ><i class="material-icons" >skip_next</i></button>
         <button id="btn-loop" class="w3-btn" ><i class="material-icons" >loop</i></button>
     </div>
-    <div class="w3-col s3 w3-right-align" >
+    <div class="w3-col s12 m5 l3 w3-right-align" >
         <i class="material-icons" >volume_up</i>
         <qq-progress id="volume" style="width:100px" value="1" ></qq-progress>
         <!--<input type="range" id="input-range-volume" min="0" max="1" step="0.01" value="0.5" >-->
@@ -49,6 +49,7 @@ export class QqAudioPlayer extends HTMLElement {
         this._audioFile = null;
         this._isLooping = true;
         this._isRandom = false;
+        this._analyserNode = null;
 
         this._dom = {};
         this._dom.btnTrackPlayPause = this.shadowRoot.getElementById('btn-track-play-pause');
@@ -130,6 +131,7 @@ export class QqAudioPlayer extends HTMLElement {
                         }
                     }
                     this._dom.progress.setValue(rate);
+                    this.dispatchEvent(new Event('qq-analyser-update'));
                 }
             }
             requestAnimationFrame(rafUpdate);
@@ -142,6 +144,9 @@ export class QqAudioPlayer extends HTMLElement {
     };
     getVolume = () => {
         return this._gainNode.gain.value;
+    }
+    getAnalyser() {
+        return this._analyserNode;
     }
     _setIsPlaying(isPlaying) {
         this._isPlaying = isPlaying;
@@ -190,7 +195,9 @@ export class QqAudioPlayer extends HTMLElement {
             this._audioContext.onstatechange = function(e) {
                 console.log('audio context state change', e);
             }
+            this._analyserNode = this._audioContext.createAnalyser();
             this._gainNode = this._audioContext.createGain();
+            this._analyserNode.connect(this._gainNode);
             this._gainNode.connect(this._audioContext.destination);
             // this._gainNode.gain.value = 1;
         }
@@ -216,7 +223,8 @@ export class QqAudioPlayer extends HTMLElement {
             console.log('source change', e);
         };
         source.buffer = this._audioBuffer;
-        source.connect(this._gainNode);
+        // source.connect(this._gainNode);
+        source.connect(this._analyserNode);
         // source.connect(this._audioContext.destination);
         let track = null;
         source.start(0, time);

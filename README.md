@@ -12,9 +12,9 @@ Demo: https://devbit.pl/project_files/simple-audio-player/
 ## Implemented
 * Add Music from your pc and play it in browser
 * Playlist with looping and randomising capabilities
+* Visualizer
 ## Planned
 * Basic equalizer
-* Visualizer
 
 # Usage
 Download repository and embedd `index.html` into your website or
@@ -32,7 +32,7 @@ If you wan't to self host libraries then replace `@import` urls in `src/*` files
 * Material Icons
 * w3.css
 
-> Tested only on Google Chrome
+> Works on Google Chrome for PC and Android
 > Microsoft Edge and Firefox not supported
 
 Powered by ![Vanilla JS](http://vanilla-js.com/assets/button.png)
